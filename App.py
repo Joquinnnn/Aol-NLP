@@ -5,8 +5,7 @@ import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 
-# --- PERSIAPAN RESOURCE NLTK ---
-# Download otomatis jika resource belum ada di komputer
+
 @st.cache_resource
 def download_nltk_data():
     nltk.download('punkt')
@@ -14,16 +13,34 @@ def download_nltk_data():
     nltk.download('stopwords')
 download_nltk_data()
 
-# --- KONFIGURASI HALAMAN STREAMLIT ---
 st.set_page_config(
     page_title="Toxic Comment Detector",
     page_icon="🛡️",
     layout="centered"
 )
+st.markdown("""
+<style>
+    /* Tombol */
+    div[data-testid="stButton"] button {
+        background-color: #345790;
+        color: white;
+        border-radius: 12px;
+        border: none;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 12px;
+        transition: 0.3s;
+    }
 
+    /* Hover tombol */
+    div[data-testid="stButton"] button:hover {
+        background-color: #c9daf8;
+        color: white;
+        transform: scale(1.02);
+    }
 
-# --- FUNGSI PREPROCESSING ---
-# WAJIB sama persis dengan yang ada di notebook Anda
+""", unsafe_allow_html=True)
+
 en_stopwords = set(stopwords.words('english'))
 
 def preprocess_text(text):
@@ -38,8 +55,7 @@ def preprocess_text(text):
     tokens = [word for word in tokens if word not in en_stopwords] 
     return " ".join(tokens)
 
-# --- LOAD MODEL & VECTORIZER ---
-# st.cache_resource agar model hanya di-load 1x, membuat app sangat cepat!
+
 @st.cache_resource
 def load_models():
     with open('tfidf_vectorizer.pkl', 'rb') as f:
@@ -54,11 +70,11 @@ except FileNotFoundError:
     st.error("File model (.pkl) tidak ditemukan! Pastikan 'tfidf_vectorizer.pkl' dan 'best_model.pkl' ada di folder yang sama dengan app.py.")
     st.stop()
 
-# Label klasifikasi
+
 target_cols = ['Toxic', 'Severe Toxic', 'Obscene', 'Threat', 'Insult', 'Identity Hate']
 
-# --- ANTARMUKA PENGGUNA (UI) ---
-st.title("🛡️ Multi-Label Toxic Comment Detection using SVM")
+
+st.title("Multi-Label Toxic Comment Detection using SVM")
 st.markdown("""
 Aplikasi ini menggunakan Machine Learning untuk mendeteksi komentar berbahasa Inggris yang mengandung unsur toksik, ancaman, atau ujaran kebencian.
 """)
@@ -104,4 +120,4 @@ if st.button("Analisis Komentar", type="primary", use_container_width=True):
                             st.error(f"⚠️ {label} Detected")
                         else:
                             # Jika aman (0), tampilkan dengan warna hijau pucat
-                            st.success(f"✔️ {label} Safe")
+                            st.success(f"✔️ {label} Not Detected")
